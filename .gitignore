@@ -9,4 +9,7 @@ application.windows64
 application.macosx
 
 # Visual Studio cache directory
-.vs/
+.vs/*
+.vscode/*
+
+/_OUT/*
