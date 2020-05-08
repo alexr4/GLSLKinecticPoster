@@ -9,6 +9,10 @@ String datapath;
 
 //Buffers, Filters and Compositor
 int nbOfLayers;
+int TYPE = 0;
+String define = "#define TYPE ";
+ArrayList<String> paramsFrag;
+PVector keymap;
 PImage poster;
 ArrayList<PImage> postersList;
 ArrayList<Filter> filterlist;
@@ -25,6 +29,7 @@ PVector[] minmaxSpeed = {
     new PVector(0.9, 1.0)
 };
 
+
 //debug
 boolean pause;
 boolean debug;
@@ -39,7 +44,7 @@ void settings(){
 
 void setup(){
     datapath = sketchPath("../data/");
-    surface.setLocation(displayWidth - width, -displayHeight*0 + 10);
+    surface.setLocation(displayWidth - width, -displayHeight*1 + 10);
     pt = new PerfTracker(this, 120);
 
     postersList = new ArrayList<PImage>();
@@ -53,11 +58,14 @@ void setup(){
     shaderList = new ArrayList<PShader>();
     displacementList = new ArrayList<PImage>();
     nbOfLayers = 1;
+    paramsFrag = new ArrayList<String>();
+    paramsFrag.add(define+TYPE);
     for(int i=0; i<nbOfLayers; i++){
         filterlist.add(new Filter(this, owidth, oheight));
-        shaderList.add(loadIncludeFragment(this, datapath+"kinecticBase.glsl", false));
+        shaderList.add(loadIncludeFragment(this, datapath+"kinecticBase.glsl", false, paramsFrag));
         displacementList.add(loadImage(datapath+"SimpleLetter/displacementMap.bmp"));
     }
+    keymap = new PVector(-1, 0, 1.0);
     ramp = loadImage(datapath+"ramp-1.png");
 
     Time.setStartTime(this);
@@ -73,8 +81,10 @@ void draw(){
     try{
         if(livecoding){
             shaderList.clear();
+            paramsFrag.clear();
+            paramsFrag.add(define+TYPE);
             for(int i=0; i<nbOfLayers; i++){
-                shaderList.add(loadIncludeFragment(this, datapath+"kinecticBase.glsl", false));
+                shaderList.add(loadIncludeFragment(this, datapath+"kinecticBase.glsl", false, paramsFrag));
             }
         }
 
@@ -91,6 +101,7 @@ void draw(){
             shader.set("offset", random(10000.0));
             shader.set("mouse", nmx, nmy);
             shader.set("time", (float)Time.time / 1000.0, Time.normTime, (float)Time.modTime, (float)Time.timeLoop);
+            shader.set("keymap", keymap.x, keymap.y, keymap.z);
             
             filter.getCustomFilter(poster, shader);
         }
@@ -112,6 +123,8 @@ void draw(){
     String UI = "Time: "+Time.time+"\n"+
                 "Pause: "+pause+"\n"+
                 "Livecoding: "+livecoding;
+    String UI2 = "TYPE: "+TYPE+"\n";
+
     if(debug){
 
         fill(0);
@@ -119,6 +132,7 @@ void draw(){
         rect(0,0, width, 60);
         fill(255);
         text(UI, 120, 20);
+        text(UI2, 120 * 2, 20);
         pt.display(0, 0);
 
     }else{
@@ -156,5 +170,36 @@ void keyPressed(){
         case '3':
             poster = postersList.get(3);
         break; 
+        case '+':
+            TYPE ++;
+        break; 
+        case '-':
+            if(TYPE > 0)
+                TYPE --;
+        break; 
     }
+     switch(keyCode){
+         case LEFT :
+            println("X++");
+            keymap.x = 1.0;
+            keymap.y = 0.0;
+         break;
+         case RIGHT :
+            println("X--");
+            keymap.x = -1.0;
+            keymap.y = 0.0;
+         break;
+         case UP :
+            println("Y++");
+            keymap.y = 1.0;
+            keymap.x = 0.0;
+         break;
+         case DOWN :
+            println("Y--");
+            keymap.y = -1.0;
+            keymap.x = 0.0;
+         break;
+         case 10 :
+         break;
+     }
 }

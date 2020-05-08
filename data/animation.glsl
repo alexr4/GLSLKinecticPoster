@@ -133,3 +133,21 @@ vec2 burn(in vec2 uv, in vec2 scale, in float time, in float edge, in float smoo
     float stepper = 1.0 - smoothstep(edge - smoothness * 0.5, edge + smoothness * 0.5, noised);
     return uv * stepper;
 }
+
+vec2 unzoomAndRepeat(in vec2 uv, in vec2 repetition){
+    //get rect sdf
+    vec2 st = uv * 2.0 - 1.0;
+    vec2 thickness = 1. / repetition;
+    float edgeX = abs(st.x / thickness.x);
+    float edgeY = abs(st.y / thickness.y);
+    float sdf = max(edgeX, edgeY);
+    float fsdf = fract(sdf);
+    float isdf = floor(sdf);
+
+    uv =  uv * 2. - 1.;
+    uv = (uv * repetition + isdf);
+    uv = uv * .5 + .5;
+    uv = uv / (isdf + 1.);
+
+    return uv;
+}
