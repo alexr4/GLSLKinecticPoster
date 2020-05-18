@@ -312,5 +312,3 @@ static class NormalEasing
       return inOutElastic(t, 0.05, 25.0);
     }
 }
-
-
